@@ -12,3 +12,9 @@
 | Rocky   |       |        |       |       |      |       |        |      |        |       | L       | L      |   |
 | Shannon |       |        |       |       |      |       |        |      |        |       |         | F      |   |
 | Sophia  |       |        |       |       |      |       |        |      |        |       |         |        |   |
+
+Key:
+R = Rival
+L = Potential Lover
+F = Friend
+MS = Master/Submissive

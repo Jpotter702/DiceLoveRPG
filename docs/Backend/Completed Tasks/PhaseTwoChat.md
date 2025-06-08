@@ -2,6 +2,29 @@
 
 # Integrate trait bonuses in game logic (2025-06-08 05:41:56)
 
+<!--toc:start-->
+- [Integrate trait bonuses in game logic (2025-06-08 05:41:56)](#integrate-trait-bonuses-in-game-logic-2025-06-08-054156)
+    - [Example 2: Romantic Advance](#example-2-romantic-advance)
+    - [Example 2: Custom Action](#example-2-custom-action)
+  - [API Documentation](#api-documentation)
+  - [Documentation](#documentation)
+  - [Development Status](#development-status)
+    - [Phase 1 (Complete)](#phase-1-complete)
+    - [Phase 1 (Complete) ✅](#phase-1-complete)
+    - [Phase 2 (Planned)](#phase-2-planned)
+    - [Phase 2 (Complete) ✅](#phase-2-complete)
+    - [Phase 3 (Planned)](#phase-3-planned)
+    - [Phase 3 (In Progress) 🔄](#phase-3-in-progress-🔄)
+    - [Phase 4 (Planned)](#phase-4-planned)
+    - [Phase 4 (Planned) 📋](#phase-4-planned-📋)
+  - [Features](#features)
+    - [Dynamic Action System](#dynamic-action-system)
+    - [Relationship System](#relationship-system)
+    - [Character Development](#character-development)
+  - [Contributing](#contributing)
+  - [License](#license)
+<!--toc:end-->
+
 _**User**_
 
 Phase 2: Game Logic + Rules Engine - **Goal:** Bring the core dating game mechanics to life. 
