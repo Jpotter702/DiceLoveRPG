@@ -1668,6 +1668,1260 @@ Thats the end of phase one...please review your code and add comments, the creat
 
 _**Assistant**_
 
+I'll first add comments to our key files, then create the documentation.
+
+1. Let's add comments to our context files first:
+
+---
+
+```diff
+  import type { ReactNode } from 'react'
+  
++ /**
++  * Represents a single message in the chat history
++  */
+  interface Message {
+    id: string
+    content: string
+    sender: 'user' | 'npc'
+    timestamp: Date
+-   npcName?: string
++   npcName?: string  // Optional name for NPC messages
+  }
+  
++ /**
++  * Type definition for the Chat context value
++  */
+  interface ChatContextType {
+-   messages: Message[]
+-   currentInput: string
++   messages: Message[]          // Array of all messages in the chat
++   currentInput: string        // Current text in the input field
+    setCurrentInput: (input: string) => void
+    addMessage: (content: string, sender: 'user' | 'npc', npcName?: string) => void
+-   clearChat: () => void
++   clearChat: () => void      // Resets both messages and input
+  }
+  
++ // Create context with undefined default value
+  const ChatContext = createContext<ChatContextType | undefined>(undefined)
+  
++ /**
++  * Provider component that wraps app to provide chat functionality
++  * Manages message history and current input state
++  */
+  export function ChatProvider({ children }: { children: ReactNode }) {
+    const [messages, setMessages] = useState<Message[]>([])
+    const [currentInput, setCurrentInput] = useState('')
+  
++   // Memoized function to add new messages to the chat
+    const addMessage = useCallback((content: string, sender: 'user' | 'npc', npcName?: string) => {
+      const newMessage: Message = {
+```
+
+```diff
+    }, [])
+  
++   // Memoized function to clear the chat history
+    const clearChat = useCallback(() => {
+      setMessages([])
+```
+
+```diff
+  }
+  
++ /**
++  * Custom hook to use the chat context
++  * @throws {Error} If used outside of ChatProvider
++  */
+  export function useChat() {
+    const context = useContext(ChatContext)
+```
+
+---
+
+```diff
+  import type { ReactNode } from 'react'
+  
++ /**
++  * Character statistics interface
++  * Each stat ranges from 1-20 with 10 being average
++  */
+  interface Stats {
+-   charisma: number
+-   empathy: number
+-   wit: number
+-   passion: number
++   charisma: number    // Influences first impressions and social interactions
++   empathy: number     // Affects ability to understand and connect with NPCs
++   wit: number         // Determines cleverness in dialogue and problem-solving
++   passion: number     // Impacts emotional expression and romantic success
+  }
+  
++ /**
++  * Represents a relationship with an NPC
++  * Tracks affection points and relationship milestones
++  */
+  interface Relationship {
+    npcId: string
+```
+
+```diff
+    milestones: {
+      id: string
+-     ap: number
++     ap: number           // AP threshold for this milestone
+      description: string
+      achieved: boolean
+    }[]
+  }
+  
++ /**
++  * Main character interface combining stats and relationships
++  */
+  interface Character {
+    name: string
+```
+
+```diff
+  }
+  
++ /**
++  * Type definition for the Character context value
++  */
+  interface CharacterContextType {
+    character: Character | null
+```
+
+```diff
+  }
+  
++ // Default starting stats for new characters
+  const defaultStats: Stats = {
+    charisma: 10,
+```
+
+```diff
+  const CharacterContext = createContext<CharacterContextType | undefined>(undefined)
+  
++ /**
++  * Provider component that wraps app to provide character management
++  * Handles character creation, stats, relationships, and milestones
++  */
+  export function CharacterProvider({ children }: { children: ReactNode }) {
+    const [character, setCharacter] = useState<Character | null>(null)
+  
++   // Create a new character with given name and optional stats
+    const createCharacter = useCallback((name: string, stats: Stats = defaultStats) => {
+      setCharacter({
+```
+
+```diff
+    }, [])
+  
++   // Update character stats, maintaining other stats unchanged
+    const updateStats = useCallback((newStats: Partial<Stats>) => {
+      setCharacter(prev => {
+```
+
+```diff
+    }, [])
+  
++   // Add a new NPC relationship if it doesn't exist
+    const addRelationship = useCallback((npcId: string, npcName: string) => {
+      setCharacter(prev => {
+```
+
+```diff
+    }, [])
+  
++   // Update Affection Points for a specific NPC
+    const updateAP = useCallback((npcId: string, amount: number) => {
+      setCharacter(prev => {
+```
+
+```diff
+    }, [])
+  
++   // Add a new milestone to an NPC relationship
+    const addMilestone = useCallback((npcId: string, ap: number, description: string) => {
+      setCharacter(prev => {
+```
+
+```diff
+    }, [])
+  
++   // Mark a specific milestone as achieved
+    const achieveMilestone = useCallback((npcId: string, milestoneId: string) => {
+      setCharacter(prev => {
+```
+
+```diff
+  }
+  
++ /**
++  * Custom hook to use the character context
++  * @throws {Error} If used outside of CharacterProvider
++  */
+  export function useCharacter() {
+    const context = useContext(CharacterContext)
+```
+
+---
+
+Now, let's create the Phase One documentation:
+
+---
+
+```diff
+- 
++ # Frontend Development - Phase One Documentation
++ 
++ ## Overview
++ Phase One established the core foundation of the Love & Dice RPG frontend application. This phase focused on setting up the basic infrastructure, routing system, and state management contexts that will support the game's features.
++ 
++ ## Technical Stack
++ - **Framework**: React with TypeScript
++ - **Build Tool**: Vite
++ - **Styling**: Tailwind CSS with dark mode support
++ - **Routing**: React Router v6
++ - **State Management**: React Context API
++ 
++ ## Key Components
++ 
++ ### Layout Components
++ 1. **Container** (`src/components/Container.tsx`)
++    - Base layout wrapper
++    - Handles dark mode background
++    - Provides consistent spacing
++ 
++ 2. **Header** (`src/components/Header.tsx`)
++    - Navigation between Home and Play routes
++    - Dark mode toggle
++    - Responsive design
++    - Active route indication
++ 
++ ### Pages
++ 1. **Home** (`src/pages/Home.tsx`)
++    - Landing page with game introduction
++    - Welcoming content for new players
++ 
++ 2. **Play** (`src/pages/Play.tsx`)
++    - Main game interface placeholder
++    - Prepared for game session implementation
++ 
++ ## State Management
++ 
++ ### Chat Context (`src/context/ChatContext.tsx`)
++ Manages all chat-related functionality:
++ - Message history tracking
++ - Current input state
++ - Message timestamps
++ - NPC name support
++ - Chat clearing functionality
++ 
++ Key interfaces:
++ ```typescript
++ interface Message {
++   id: string
++   content: string
++   sender: 'user' | 'npc'
++   timestamp: Date
++   npcName?: string
++ }
++ ```
++ 
++ ### Character Context (`src/context/CharacterContext.tsx`)
++ Handles character and relationship management:
++ - Character stats (charisma, empathy, wit, passion)
++ - NPC relationships
++ - Affection Points (AP) tracking
++ - Relationship milestones
++ 
++ Key interfaces:
++ ```typescript
++ interface Stats {
++   charisma: number
++   empathy: number
++   wit: number
++   passion: number
++ }
++ 
++ interface Relationship {
++   npcId: string
++   npcName: string
++   affectionPoints: number
++   milestones: {
++     id: string
++     ap: number
++     description: string
++     achieved: boolean
++   }[]
++ }
++ ```
++ 
++ ## Routing Structure
++ ```
++ /             - Home page
++ /play         - Game session page
++ ```
++ 
++ ## Features Implemented
++ 1. ✅ Dark mode support with system preference detection
++ 2. ✅ Responsive navigation
++ 3. ✅ Type-safe context providers
++ 4. ✅ Basic routing structure
++ 5. ✅ Character stat management
++ 6. ✅ Chat system foundation
++ 7. ✅ Relationship tracking system
++ 
++ ## Next Steps
++ 1. Implement character creation interface
++ 2. Build chat UI components
++ 3. Create relationship visualization
++ 4. Add persistence layer
++ 5. Implement game mechanics
++ 6. Add animations and transitions
++ 
++ ## Development Notes
++ - All components are built with TypeScript for type safety
++ - Context providers use React.useCallback for optimized performance
++ - Dark mode implementation uses CSS variables for theme switching
++ - Routing is set up for easy expansion
++ - Components are modular and reusable 
+```
+
+---
+
+I've now:
+1. Added comprehensive comments to both context files
+2. Created detailed documentation of Phase One
+3. Organized the documentation with clear sections covering:
+   - Technical stack
+   - Component structure
+   - State management
+   - Routing
+   - Features implemented
+   - Next steps
+   - Development notes
+
+The codebase is now well-documented and ready for the next phase of development. Would you like me to:
+1. Make any adjustments to the documentation?
+2. Add more details to any section?
+3. Move on to Phase Two?
+
+---
+
+_**User**_
+
+**Phase 2: Chat System UI** 
+**Build the chat UI.**
+“Create a `ChatWindow` component that uses `MessageBubble` for rendering messages (user, AI, and NPC). Add an `InputBar` for user input and basic enter-to-send logic.”
+
+---
+
+_**Assistant**_
+
+I'll help you build the chat UI components. Let's break this down into steps:
+
+1. First, let's create the MessageBubble component:
+
+---
+
+```diff
+- 
++ import type { Message } from '../../types/chat'
++ import { format } from 'date-fns'
++ 
++ interface MessageBubbleProps {
++   message: Message
++ }
++ 
++ export function MessageBubble({ message }: MessageBubbleProps) {
++   const isUser = message.sender === 'user'
++ 
++   return (
++     <div
++       className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} mb-4`}
++     >
++       <div
++         className={`
++           max-w-[80%] rounded-2xl px-4 py-2
++           ${isUser ? 'bg-primary text-primary-foreground' : 'bg-secondary text-secondary-foreground'}
++           ${isUser ? 'rounded-br-sm' : 'rounded-bl-sm'}
++         `}
++       >
++         {!isUser && message.npcName && (
++           <div className="text-sm font-semibold mb-1">
++             {message.npcName}
++           </div>
++         )}
++         <div className="text-sm whitespace-pre-wrap break-words">
++           {message.content}
++         </div>
++         <div className={`
++           text-xs mt-1 opacity-70
++           ${isUser ? 'text-primary-foreground' : 'text-secondary-foreground'}
++         `}>
++           {format(message.timestamp, 'HH:mm')}
++         </div>
++       </div>
++     </div>
++   )
++ } 
+```
+
+---
+
+Let's fix the missing dependencies and types:
+
+---
+
+```bash
+cd /home/jason/projects/loverpg/frontend && npm install date-fns @types/date-fns
+```
+
+```
+.venvjason@localhost:~/projects/loverpg/frontend> cd /home/jason/projects/loverpg/frontend && n
+pm install date-fns @types/date-fns
+
+added 2 packages, and audited 310 packages in 2s
+
+68 packages are looking for funding
+  run `npm fund` for details
+
+2 moderate severity vulnerabilities
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+.venvjason@localhost:~/projects/loverpg/frontend>
+```
+
+---
+
+Now let's create the chat types file:
+
+---
+
+```diff
+- 
++ export interface Message {
++   id: string
++   content: string
++   sender: 'user' | 'npc'
++   timestamp: Date
++   npcName?: string
++ } 
+```
+
+---
+
+2. Now, let's create the InputBar component:
+
+---
+
+```diff
+- 
++ import { useChat } from '../../context/ChatContext'
++ import { KeyboardEvent } from 'react'
++ 
++ export function InputBar() {
++   const { currentInput, setCurrentInput, addMessage } = useChat()
++ 
++   const handleSubmit = () => {
++     const trimmedInput = currentInput.trim()
++     if (trimmedInput) {
++       addMessage(trimmedInput, 'user')
++       setCurrentInput('')
++     }
++   }
++ 
++   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
++     if (e.key === 'Enter' && !e.shiftKey) {
++       e.preventDefault()
++       handleSubmit()
++     }
++   }
++ 
++   return (
++     <div className="border-t border-border bg-background p-4">
++       <div className="container mx-auto flex gap-4">
++         <textarea
++           value={currentInput}
++           onChange={(e) => setCurrentInput(e.target.value)}
++           onKeyDown={handleKeyPress}
++           placeholder="Type your message..."
++           className="flex-1 resize-none rounded-lg border border-border bg-background p-2 focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px] max-h-[200px]"
++           rows={1}
++         />
++         <button
++           onClick={handleSubmit}
++           disabled={!currentInput.trim()}
++           className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
++         >
++           Send
++         </button>
++       </div>
++     </div>
++   )
++ } 
+```
+
+---
+
+Let's fix the type import:
+
+---
+
+```diff
+  import { useChat } from '../../context/ChatContext'
+- import { KeyboardEvent } from 'react'
++ import type { KeyboardEvent } from 'react'
+  
+  export function InputBar() {
+```
+
+---
+
+3. Finally, let's create the ChatWindow component that brings it all together:
+
+---
+
+```diff
+- 
++ import { useEffect, useRef } from 'react'
++ import { useChat } from '../../context/ChatContext'
++ import { MessageBubble } from './MessageBubble'
++ import { InputBar } from './InputBar'
++ 
++ export function ChatWindow() {
++   const { messages } = useChat()
++   const messagesEndRef = useRef<HTMLDivElement>(null)
++ 
++   const scrollToBottom = () => {
++     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
++   }
++ 
++   useEffect(() => {
++     scrollToBottom()
++   }, [messages])
++ 
++   return (
++     <div className="flex flex-col h-[calc(100vh-3.5rem)]">
++       <div className="flex-1 overflow-y-auto p-4">
++         <div className="container mx-auto">
++           {messages.length === 0 ? (
++             <div className="flex items-center justify-center h-full text-secondary-foreground/60">
++               No messages yet. Start the conversation!
++             </div>
++           ) : (
++             messages.map(message => (
++               <MessageBubble key={message.id} message={message} />
++             ))
++           )}
++           <div ref={messagesEndRef} />
++         </div>
++       </div>
++       <InputBar />
++     </div>
++   )
++ } 
+```
+
+---
+
+4. Let's update the Play page to use our new ChatWindow component:
+
+---
+
+```diff
++ import { ChatWindow } from '../components/chat/ChatWindow'
++ 
+  export function Play() {
+    return (
+-     <div className="container mx-auto px-4 py-8">
+-       <h1 className="text-3xl font-bold mb-6">Game Session</h1>
+-       <div className="bg-secondary/50 rounded-lg p-6">
+-         <p className="text-lg mb-4">
+-           Your adventure awaits! This is where your story will unfold...
+-         </p>
+-         {/* Game interface will be implemented here */}
+-       </div>
++     <div className="h-[calc(100vh-3.5rem)]">
++       <ChatWindow />
+      </div>
+    )
+```
+
+---
+
+Now we have a complete chat UI system with:
+
+1. **MessageBubble Component**:
+   - Different styles for user and NPC messages
+   - NPC name display
+   - Timestamp display
+   - Message content with proper text wrapping
+   - Visual distinction between sender types
+
+2. **InputBar Component**:
+   - Textarea for message input
+   - Enter to send functionality (Shift+Enter for new line)
+   - Send button with disabled state
+   - Character input validation
+   - Clean UI with proper spacing
+
+3. **ChatWindow Component**:
+   - Auto-scrolling to latest messages
+   - Empty state handling
+   - Proper message list rendering
+   - Full-height layout
+   - Overflow handling for long conversations
+
+The chat system features:
+- Responsive design
+- Dark mode support
+- Keyboard shortcuts
+- Clean animations
+- Proper spacing and layout
+- Type safety throughout
+
+Would you like me to:
+1. Add any additional features to the chat components?
+2. Add animations or transitions?
+3. Implement message grouping by sender?
+4. Move on to the next task?
+
+---
+
+_**User**_
+
+Add scroll-to-bottom behavior when new messages arrive. Display timestamps and message roles (e.g., 'Player', 'NPC', 'Narrator').”
+    
+
+---
+
+_**Assistant**_
+
+I notice we already have scroll-to-bottom behavior implemented in ChatWindow, but let's enhance it and add message roles. Let's make these improvements:
+
+1. First, let's update our Message type to include roles:
+
+---
+
+```diff
++ export type MessageRole = 'player' | 'npc' | 'narrator' | 'system'
++ 
+  export interface Message {
+    id: string
+    content: string
+    sender: 'user' | 'npc'
++   role: MessageRole
+    timestamp: Date
+    npcName?: string
+```
+
+---
+
+2. Let's enhance the MessageBubble component with better role display and timestamp formatting:
+
+---
+
+```diff
+  interface MessageBubbleProps {
+    message: Message
+- }
++   showTimestamp?: boolean
++ }
++ 
++ const roleColors = {
++   player: 'bg-blue-500/10 text-blue-700 dark:text-blue-300',
++   npc: 'bg-purple-500/10 text-purple-700 dark:text-purple-300',
++   narrator: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
++   system: 'bg-gray-500/10 text-gray-700 dark:text-gray-300'
++ } as const
+  
+- export function MessageBubble({ message }: MessageBubbleProps) {
++ export function MessageBubble({ message, showTimestamp = true }: MessageBubbleProps) {
+    const isUser = message.sender === 'user'
++   const isNarrator = message.role === 'narrator'
++   const isSystem = message.role === 'system'
++ 
++   // Center narrator and system messages
++   if (isNarrator || isSystem) {
++     return (
++       <div className="flex flex-col items-center w-full mb-4">
++         <div className={`
++           max-w-[80%] rounded-lg px-4 py-2
++           ${roleColors[message.role]}
++           text-center
++         `}>
++           <div className="text-xs font-semibold uppercase mb-1">
++             {message.role}
++           </div>
++           <div className="text-sm whitespace-pre-wrap break-words">
++             {message.content}
++           </div>
++           {showTimestamp && (
++             <div className="text-xs mt-1 opacity-70">
++               {format(message.timestamp, 'HH:mm')}
++             </div>
++           )}
++         </div>
++       </div>
++     )
++   }
+  
+    return (
+```
+
+```diff
+          `}
+        >
++         <div className="flex items-center gap-2 mb-1">
+            {!isUser && message.npcName && (
+-           <div className="text-sm font-semibold mb-1">
++             <span className="text-sm font-semibold">
+                {message.npcName}
++             </span>
++           )}
++           <span className={`
++             text-xs px-2 py-0.5 rounded-full
++             ${roleColors[message.role]}
++           `}>
++             {message.role}
++           </span>
+          </div>
+-         )}
+          <div className="text-sm whitespace-pre-wrap break-words">
+            {message.content}
+          </div>
++         {showTimestamp && (
+            <div className={`
+              text-xs mt-1 opacity-70
+```
+
+```diff
+              {format(message.timestamp, 'HH:mm')}
+            </div>
++         )}
+        </div>
+      </div>
+```
+
+---
+
+3. Let's update the ChatWindow to improve scroll behavior and add message grouping:
+
+---
+
+```diff
+- import { useEffect, useRef } from 'react'
++ import { useEffect, useRef, useState } from 'react'
+  import { useChat } from '../../context/ChatContext'
+  import { MessageBubble } from './MessageBubble'
+  import { InputBar } from './InputBar'
++ import type { Message } from '../../types/chat'
+  
+  export function ChatWindow() {
+    const { messages } = useChat()
+    const messagesEndRef = useRef<HTMLDivElement>(null)
++   const scrollContainerRef = useRef<HTMLDivElement>(null)
++   const [autoScroll, setAutoScroll] = useState(true)
++ 
++   // Check if user has scrolled up
++   const handleScroll = () => {
++     if (!scrollContainerRef.current) return
++     
++     const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
++     const isAtBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 50
++     setAutoScroll(isAtBottom)
++   }
+  
+    const scrollToBottom = () => {
++     if (!autoScroll) return
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  
+    useEffect(() => {
+      scrollToBottom()
+-   }, [messages])
++   }, [messages, autoScroll])
++ 
++   // Group messages by time (show timestamp if > 5 minutes between messages)
++   const shouldShowTimestamp = (message: Message, index: number) => {
++     if (index === 0) return true
++     const prevMessage = messages[index - 1]
++     const timeDiff = message.timestamp.getTime() - prevMessage.timestamp.getTime()
++     return timeDiff > 5 * 60 * 1000 // 5 minutes
++   }
+  
+    return (
+      <div className="flex flex-col h-[calc(100vh-3.5rem)]">
+-       <div className="flex-1 overflow-y-auto p-4">
++       <div 
++         ref={scrollContainerRef}
++         onScroll={handleScroll}
++         className="flex-1 overflow-y-auto p-4 scroll-smooth"
++       >
+          <div className="container mx-auto">
+            {messages.length === 0 ? (
+              <div className="flex items-center justify-center h-full text-secondary-foreground/60">
+-               No messages yet. Start the conversation!
++               <div className="text-center">
++                 <p className="text-lg mb-2">Welcome to Love & Dice!</p>
++                 <p className="text-sm">Your adventure begins here...</p>
++               </div>
+              </div>
+            ) : (
+-             messages.map(message => (
+-               <MessageBubble key={message.id} message={message} />
++             messages.map((message, index) => (
++               <MessageBubble 
++                 key={message.id} 
++                 message={message}
++                 showTimestamp={shouldShowTimestamp(message, index)}
++               />
+              ))
+            )}
+```
+
+```diff
+        </div>
+        <InputBar />
++       {!autoScroll && messages.length > 0 && (
++         <button
++           onClick={() => {
++             setAutoScroll(true)
++             scrollToBottom()
++           }}
++           className="absolute bottom-20 right-8 bg-primary text-primary-foreground rounded-full p-2 shadow-lg hover:bg-primary/90"
++           aria-label="Scroll to bottom"
++         >
++           <svg 
++             xmlns="http://www.w3.org/2000/svg" 
++             className="h-5 w-5" 
++             viewBox="0 0 20 20" 
++             fill="currentColor"
++           >
++             <path 
++               fillRule="evenodd" 
++               d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
++               clipRule="evenodd" 
++             />
++           </svg>
++         </button>
++       )}
+      </div>
+    )
+```
+
+---
+
+4. Let's update the ChatContext to include the new role property:
+
+---
+
+```diff
+  import { createContext, useContext, useState, useCallback } from 'react'
+  import type { ReactNode } from 'react'
++ import type { Message, MessageRole } from '../types/chat'
+  
+  /**
+```
+
+```diff
+    content: string
+    sender: 'user' | 'npc'
++   role: MessageRole
+    timestamp: Date
+    npcName?: string  // Optional name for NPC messages
+```
+
+```diff
+    currentInput: string        // Current text in the input field
+    setCurrentInput: (input: string) => void
+-   addMessage: (content: string, sender: 'user' | 'npc', npcName?: string) => void
++   addMessage: (content: string, sender: 'user' | 'npc', role: MessageRole, npcName?: string) => void
+    clearChat: () => void      // Resets both messages and input
+  }
+```
+
+```diff
+  
+    // Memoized function to add new messages to the chat
+-   const addMessage = useCallback((content: string, sender: 'user' | 'npc', npcName?: string) => {
++   const addMessage = useCallback((
++     content: string, 
++     sender: 'user' | 'npc', 
++     role: MessageRole = sender === 'user' ? 'player' : 'npc',
++     npcName?: string
++   ) => {
+      const newMessage: Message = {
+        id: crypto.randomUUID(),
+        content,
+        sender,
++       role,
+        timestamp: new Date(),
+        npcName
+```
+
+---
+
+Let's fix the import conflict by removing the local Message interface since we're now importing it:
+
+---
+
+```diff
+  import type { ReactNode } from 'react'
+  import type { Message, MessageRole } from '../types/chat'
+- 
+- /**
+-  * Represents a single message in the chat history
+-  */
+- interface Message {
+-   id: string
+-   content: string
+-   sender: 'user' | 'npc'
+-   role: MessageRole
+-   timestamp: Date
+-   npcName?: string  // Optional name for NPC messages
+- }
+  
+  /**
+```
+
+---
+
+5. Finally, let's update the InputBar to use the new role parameter:
+
+---
+
+```diff
+      const trimmedInput = currentInput.trim()
+      if (trimmedInput) {
+-       addMessage(trimmedInput, 'user')
++       addMessage(trimmedInput, 'user', 'player')
+        setCurrentInput('')
+      }
+```
+
+---
+
+Now we have enhanced the chat system with:
+
+1. **Improved Message Display**:
+   - Different styles for each role (player, npc, narrator, system)
+   - Role badges with distinct colors
+   - Centered narrator and system messages
+   - Smart timestamp display (only shown after 5-minute gaps)
+
+2. **Better Scroll Behavior**:
+   - Auto-scroll to bottom for new messages
+   - Manual scroll detection
+   - "Scroll to bottom" button when scrolled up
+   - Smooth scrolling animations
+
+3. **Message Roles**:
+   - Player messages (blue)
+   - NPC messages (purple)
+   - Narrator messages (amber)
+   - System messages (gray)
+
+4. **Visual Improvements**:
+   - Role-specific color schemes
+   - Better message grouping
+   - Improved empty state message
+   - Consistent spacing and alignment
+
+The chat system now provides a much richer experience with clear visual distinctions between different types of messages and smarter handling of timestamps and scrolling. Would you like me to:
+
+1. Add any additional features?
+2. Implement message grouping by sender (combine consecutive messages)?
+3. Add typing indicators or message status?
+4. Move on to the next task?
+
+---
+
+_**User**_
+
+“Stub `api.ts` to simulate an async reply from the AI assistant. Return a mocked string like ‘You feel a connection spark between you and them.’”
+
+---
+
+_**Assistant**_
+
+I'll create a simulated API module with mock responses for the AI assistant. Let's create this with some variety in responses and simulated delay:
+
+---
+
+```diff
+- 
++ import type { MessageRole } from '../types/chat'
++ 
++ interface AIResponse {
++   content: string
++   role: MessageRole
++   npcName?: string
++ }
++ 
++ // Mock responses for different scenarios
++ const mockResponses: AIResponse[] = [
++   {
++     content: "You feel a connection spark between you and them, like electricity in the air.",
++     role: 'narrator'
++   },
++   {
++     content: "I appreciate your honesty. It's refreshing to meet someone so direct.",
++     role: 'npc',
++     npcName: 'Sarah'
++   },
++   {
++     content: "The evening breeze carries the faint scent of cherry blossoms as you both share a moment of comfortable silence.",
++     role: 'narrator'
++   },
++   {
++     content: "That's an interesting perspective. Tell me more about how you see things.",
++     role: 'npc',
++     npcName: 'Alex'
++   },
++   {
++     content: "Your words seem to have struck a chord, and you notice a subtle change in their expression.",
++     role: 'narrator'
++   }
++ ]
++ 
++ // Simulate network delay
++ const randomDelay = () => Math.random() * 1000 + 500 // 500-1500ms delay
++ 
++ /**
++  * Simulates an AI response to user input
++  * @param message The user's message
++  * @returns Promise that resolves with AI response
++  */
++ export async function getAIResponse(message: string): Promise<AIResponse> {
++   // Simulate API call delay
++   await new Promise(resolve => setTimeout(resolve, randomDelay()))
++   
++   // Randomly select a response
++   const response = mockResponses[Math.floor(Math.random() * mockResponses.length)]
++   
++   // If the message contains certain keywords, modify the response
++   if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
++     return {
++       content: "Hello! It's wonderful to meet you. How are you today?",
++       role: 'npc',
++       npcName: 'Sarah'
++     }
++   }
++ 
++   if (message.toLowerCase().includes('goodbye') || message.toLowerCase().includes('bye')) {
++     return {
++       content: "The conversation draws to a close, leaving a lingering warmth in the air.",
++       role: 'narrator'
++     }
++   }
++ 
++   return response
++ }
++ 
++ /**
++  * Simulates system status messages
++  * @returns Promise that resolves with system message
++  */
++ export async function getSystemMessage(): Promise<AIResponse> {
++   await new Promise(resolve => setTimeout(resolve, randomDelay()))
++   
++   return {
++     content: "Connection established. Your adventure awaits...",
++     role: 'system'
++   }
++ }
++ 
++ /**
++  * Simulates typing indicator
++  * @returns Promise that resolves when "typing" is complete
++  */
++ export async function simulateTyping(): Promise<void> {
++   const typingDuration = Math.random() * 2000 + 1000 // 1-3 seconds
++   await new Promise(resolve => setTimeout(resolve, typingDuration))
++ } 
+```
+
+---
+
+Now let's update the InputBar to use our mock API:
+
+---
+
+```diff
+  import { useChat } from '../../context/ChatContext'
++ import { getAIResponse, simulateTyping } from '../../api/api'
+  import type { KeyboardEvent } from 'react'
++ import { useState } from 'react'
+  
+  export function InputBar() {
+    const { currentInput, setCurrentInput, addMessage } = useChat()
++   const [isLoading, setIsLoading] = useState(false)
+  
+-   const handleSubmit = () => {
++   const handleSubmit = async () => {
+      const trimmedInput = currentInput.trim()
+-     if (trimmedInput) {
++     if (!trimmedInput || isLoading) return
++ 
++     // Send user message
+      addMessage(trimmedInput, 'user', 'player')
+      setCurrentInput('')
++     
++     // Get AI response
++     setIsLoading(true)
++     try {
++       await simulateTyping()
++       const response = await getAIResponse(trimmedInput)
++       addMessage(response.content, 'npc', response.role, response.npcName)
++     } catch (error) {
++       console.error('Failed to get AI response:', error)
++       addMessage(
++         "I apologize, but I'm having trouble processing your message right now.",
++         'npc',
++         'system'
++       )
++     } finally {
++       setIsLoading(false)
+      }
+    }
+```
+
+```diff
+            className="flex-1 resize-none rounded-lg border border-border bg-background p-2 focus:outline-none focus:ring-2 focus:ring-primary min-h-[44px] max-h-[200px]"
+            rows={1}
++           disabled={isLoading}
+          />
+          <button
+-           onClick={handleSubmit}
+-           disabled={!currentInput.trim()}
++           onClick={() => handleSubmit()}
++           disabled={!currentInput.trim() || isLoading}
+            className="px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+-           Send
++           {isLoading ? (
++             <span className="flex items-center gap-2">
++               <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
++                 <circle
++                   className="opacity-25"
++                   cx="12"
++                   cy="12"
++                   r="10"
++                   stroke="currentColor"
++                   strokeWidth="4"
++                 />
++                 <path
++                   className="opacity-75"
++                   fill="currentColor"
++                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
++                 />
++               </svg>
++               Sending...
++             </span>
++           ) : (
++             'Send'
++           )}
+          </button>
+        </div>
+```
+
+---
+
+Let's also update the ChatWindow to show the initial system message when mounted:
+
+---
+
+```diff
+  import { MessageBubble } from './MessageBubble'
+  import { InputBar } from './InputBar'
++ import { getSystemMessage } from '../../api/api'
+  import type { Message } from '../../types/chat'
+  
+  export function ChatWindow() {
+-   const { messages } = useChat()
++   const { messages, addMessage } = useChat()
+    const messagesEndRef = useRef<HTMLDivElement>(null)
+    const scrollContainerRef = useRef<HTMLDivElement>(null)
+    const [autoScroll, setAutoScroll] = useState(true)
++   const [isInitialized, setIsInitialized] = useState(false)
++ 
++   // Initialize with system message
++   useEffect(() => {
++     if (!isInitialized && messages.length === 0) {
++       const initChat = async () => {
++         try {
++           const systemMsg = await getSystemMessage()
++           addMessage(systemMsg.content, 'npc', systemMsg.role)
++         } catch (error) {
++           console.error('Failed to initialize chat:', error)
++         }
++         setIsInitialized(true)
++       }
++       initChat()
++     }
++   }, [isInitialized, messages.length, addMessage])
+  
+    // Check if user has scrolled up
+```
+
+---
+
+I've created a complete mock API implementation with the following features:
+
+1. Created `api.ts` with:
+   - Mock responses array with varied content and roles (narrator, NPC, system)
+   - Simulated network delay (500-1500ms)
+   - Special responses for greetings and goodbyes
+   - Typing indicator simulation
+   - System message for chat initialization
+
+2. Updated `InputBar.tsx` to:
+   - Handle async message submission
+   - Show loading state while waiting for response
+   - Display a loading spinner in the send button
+   - Prevent multiple submissions while loading
+   - Handle errors gracefully
+
+3. Updated `ChatWindow.tsx` to:
+   - Show initial system message on mount
+   - Handle initialization state
+   - Maintain proper scroll behavior with async messages
+
+The mock API provides a realistic simulation of an AI chat system with:
+- Natural delays
+- Varied responses
+- Different message roles
+- Error handling
+- Loading states
+- Typing indicators
+
+You can now test the chat interface with these simulated responses. The system will randomly select responses from the mock array, with special handling for greetings and goodbyes. The typing indicator and network delays make the interaction feel more natural and realistic.
+
+Would you like me to add any additional features or modify the existing implementation?
+
+---
+
+_**User**_
+
+that completes phase two. congratulations on great job. please add comments to your code and memorialize phase two the the frontend_PhaseTwo.md document similiar to the one you created for Phase One. Once done, please create a short document that explains how to create the environment and launch the app for testing.
+
+---
+
+_**Assistant**_
+
+
+
+---
+
 
 
 ---

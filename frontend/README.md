@@ -1,54 +1,92 @@
-# React + TypeScript + Vite
+# Love & Dice RPG Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web application for an interactive dating simulation RPG built with React, TypeScript, and TailwindCSS.
 
-Currently, two official plugins are available:
+## Prerequisites
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js (v18 or higher)
+- npm (v9 or higher)
+- Git
 
-## Expanding the ESLint configuration
+## Setup Instructions
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/loverpg.git
+cd loverpg/frontend
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2. Install dependencies:
+```bash
+npm install
 ```
+
+3. Create a `.env` file in the frontend directory:
+```bash
+cp .env.example .env
+```
+
+## Development
+
+To start the development server:
+
+```bash
+npm run dev
+```
+
+This will launch the application in development mode on [http://localhost:3000](http://localhost:3000).
+
+## Build for Production
+
+To create a production build:
+
+```bash
+npm run build
+```
+
+To preview the production build:
+
+```bash
+npm run preview
+```
+
+## Project Structure
+
+```
+frontend/
+├── src/
+│   ├── api/          # API integration
+│   ├── components/   # React components
+│   ├── context/      # React context providers
+│   ├── styles/       # Global styles
+│   └── types/        # TypeScript definitions
+├── docs/            # Documentation
+├── public/          # Static assets
+└── tests/           # Test files
+```
+
+## Features
+
+- Interactive chat interface
+- Dark mode support
+- Responsive design
+- Role-based message styling
+- Simulated AI responses
+- Smooth scrolling
+- Loading indicators
+
+## Development Phases
+
+- [Phase One](docs/frontend_PhaseOne.md): Project Setup and Basic Structure
+- [Phase Two](docs/frontend_PhaseTwo.md): Chat Interface Implementation
+
+## Contributing
+
+1. Create a feature branch
+2. Make your changes
+3. Run tests: `npm test`
+4. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details

@@ -1,16 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react'
 import type { ReactNode } from 'react'
-
-/**
- * Represents a single message in the chat history
- */
-interface Message {
-  id: string
-  content: string
-  sender: 'user' | 'npc'
-  timestamp: Date
-  npcName?: string  // Optional name for NPC messages
-}
+import type { Message, MessageRole } from '../types/chat'
 
 /**
  * Type definition for the Chat context value
@@ -19,7 +9,7 @@ interface ChatContextType {
   messages: Message[]          // Array of all messages in the chat
   currentInput: string        // Current text in the input field
   setCurrentInput: (input: string) => void
-  addMessage: (content: string, sender: 'user' | 'npc', npcName?: string) => void
+  addMessage: (content: string, sender: 'user' | 'npc', role: MessageRole, npcName?: string) => void
   clearChat: () => void      // Resets both messages and input
 }
 
@@ -35,11 +25,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const [currentInput, setCurrentInput] = useState('')
 
   // Memoized function to add new messages to the chat
-  const addMessage = useCallback((content: string, sender: 'user' | 'npc', npcName?: string) => {
+  const addMessage = useCallback((
+    content: string, 
+    sender: 'user' | 'npc', 
+    role: MessageRole = sender === 'user' ? 'player' : 'npc',
+    npcName?: string
+  ) => {
     const newMessage: Message = {
       id: crypto.randomUUID(),
       content,
       sender,
+      role,
       timestamp: new Date(),
       npcName
     }
