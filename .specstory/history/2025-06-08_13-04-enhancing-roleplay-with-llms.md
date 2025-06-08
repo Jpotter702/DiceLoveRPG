@@ -1407,11 +1407,306 @@ Now, let me update the README to reflect the Phase 3 completion:
 
 ---
 
-
+```diff
+- # Love & Dice RPG
+- 
+- A dating simulation RPG with AI-powered interactions, dynamic character development, and image generation.
++ # Love & Geist: A Dating Sim with AI-Powered NPCs
+  
+  ## Overview
+- 
+- Love & Dice RPG combines traditional dating sim mechanics with tabletop RPG elements and modern AI technology. The game features:
+- 
+- - Character creation with interconnected trait systems
+- - Dynamic action resolution using the Geist Roll system
+- - AI-powered NPC interactions with context memory
+- - Image generation for characters and scenes
+- - Relationship progression based on player choices
+- 
+- ## Architecture
+- 
+- ### Backend (FastAPI)
+- 
+- ```
+- backend/
+- ├── models/          # Pydantic models and data structures
+- ├── routes/          # API endpoint handlers
+- ├── services/        # Business logic and external integrations
+- └── utils/          # Helper functions and utilities
+- ```
++ Love & Geist is a unique dating simulation game that combines traditional dating sim mechanics with modern AI technology to create dynamic, engaging character interactions. The game features intelligent NPCs powered by HuggingFace's language models, a sophisticated affection system, and context-aware dialogue choices.
++ 
++ ## Features
++ 
++ ### Core Mechanics
++ - **Character Creation**: Create unique characters with primary, secondary, and tertiary traits
++ - **Geist System**: Dynamic probability-based action resolution system
++ - **Affection Points (AP)**: Track and evolve relationships with NPCs
++ - **AI-Generated Images**: Character and scene visualization using Stable Diffusion
++ 
++ ### Advanced Interaction System
++ - **Context Memory**: NPCs remember past interactions and shared experiences
++ - **Dynamic Dialogue**: 10 distinct dialogue tones with context-aware recommendations
++ - **Emotional Expression**: NPCs respond with realistic emotions and actions
++ - **Relationship Progression**: Natural relationship development based on interactions
++ 
++ ### AI Integration
++ - **Smart Responses**: AI-generated dialogue tuned for romantic comedy/drama
++ - **Contextual Memory**: NPCs reference past conversations and shared interests
++ - **Personality Consistency**: Characters maintain consistent traits while evolving
++ - **Emotional Depth**: Realistic emotional responses based on relationship status
++ 
++ ## Project Status
++ - ✅ Phase 1: Core API Structure
++ - ✅ Phase 2: Game Logic + Rules Engine
++ - ✅ Phase 3: Roleplay + AI Integration
++ - ⏳ Phase 4: Frontend Integration (In Progress)
++ 
++ ## API Documentation
++ 
++ ### Story Interaction
++ ```http
++ POST /api/story/interact
++ POST /api/story/dialogue_options
++ ```
++ 
++ ### Character Management
++ ```http
++ POST /api/character/create
++ POST /api/geist/roll
++ ```
++ 
++ ### Image Generation
++ ```http
++ POST /api/image/generate
++ ```
++ 
++ ## Technical Details
++ 
++ ### Dependencies
++ - FastAPI for backend API
++ - HuggingFace's DialoGPT for dialogue generation
++ - Stable Diffusion for image generation
++ - Pydantic for data validation
+  
+  ### Key Components
+- 
+- 1. **Character System**
+-    - Primary traits (charm, wit, empathy, etc.)
+-    - Secondary traits (impression, flirtation, chemistry)
+-    - Tertiary traits (romance, connection, destiny)
+- 
+- 2. **Geist Roll System**
+-    - Dynamic probability calculations
+-    - Trait-based modifiers
+-    - Critical success/failure mechanics
+-    - Custom action support with complexity levels
+-    - Automatic probability table management
+- 
+- 3. **Story System**
+-    - AI-powered dialogue generation
+-    - Context-aware responses
+-    - Affection and mood tracking
+-    - Relationship progression system
+-    - Dialogue tone modifiers
+- 
+- 4. **Image Generation**
+-    - Style-specific prompting
+-    - Character and scene visualization
+-    - Consistent art direction
+- 
+- ## Setup
++ - Trait-based character system
++ - Dynamic probability calculation
++ - Context-aware memory system
++ - Sophisticated dialogue tone system
++ 
++ ## Development Progress
++ 
++ ### Completed (Phases 1-3)
++ - ✅ Basic API structure and endpoints
++ - ✅ Character creation and trait system
++ - ✅ Geist roll mechanics
++ - ✅ Image generation integration
++ - ✅ Story interaction system
++ - ✅ Affection point tracking
++ - ✅ NPC memory and context system
++ - ✅ Dynamic dialogue tone system
++ - ✅ Enhanced AI prompts for immersion
++ 
++ ### In Progress (Phase 4)
++ - 🔄 Frontend UI development
++ - 🔄 Chat interface implementation
++ - 🔄 Character sheet display
++ - 🔄 Visual feedback system
++ 
++ ## Documentation
++ - [Phase 1 Summary](docs/PhaseOne.md): Core API Implementation
++ - [Phase 2 Summary](docs/PhaseTwo.md): Game Logic Development
++ - [Phase 3 Summary](docs/PhaseThree.md): AI Integration
++ - [Rulebook](docs/rulebook.md): Game Mechanics
++ - [API Reference](docs/API_Reference.md): Endpoint Documentation
++ 
++ ## Getting Started
+  
+  ### Prerequisites
+- - Python 3.8+
+- - HuggingFace API key
++ ```bash
++ python 3.8+
++ pip
++ huggingface_hub
++ fastapi
++ uvicorn
++ ```
+  
+  ### Installation
+- 
+- 1. Clone the repository:
+  ```bash
+  git clone https://github.com/yourusername/loverpg.git
+  cd loverpg
+- ```
+- 
+- 2. Create and activate a virtual environment:
+- ```bash
+- python -m venv venv
+- source venv/bin/activate  # Linux/Mac
+- # or
+- venv\Scripts\activate     # Windows
+- ```
+- 
+- 3. Install dependencies:
+- ```bash
+  pip install -r requirements.txt
+  ```
+  
+- 4. Set up environment variables:
++ ### Configuration
++ 1. Set up environment variables:
+  ```bash
+- export HUGGINGFACE_API_KEY=your_key_here  # Linux/Mac
+- # or
+- set HUGGINGFACE_API_KEY=your_key_here     # Windows
++ HUGGINGFACE_API_KEY=your_key_here
+  ```
+  
+- 5. Run the development server:
++ 2. Start the server:
+  ```bash
+- uvicorn backend.app:app --reload
++ uvicorn main:app --reload
+  ```
+- 
+- ## Documentation
+- 
+- - [API Reference](docs/API_Reference.md) - Detailed endpoint specifications
+- - [Rulebook](docs/rulebook.md) - Game mechanics and systems
+- - [Development Guide](docs/Development_Guide.md) - Setup and contribution guidelines
+- - [Frontend Guide](docs/Frontend/README.md) - UI/UX implementation details
+- 
+- ## Development Status
+- 
+- ### Phase 1 (Complete) ✅
+- - ✅ Character creation system
+- - ✅ Basic Geist roll mechanics
+- - ✅ Story interaction framework
+- - ✅ Image generation integration
+- 
+- ### Phase 2 (Complete) ✅
+- - ✅ Enhanced game logic with dynamic actions
+- - ✅ Trait bonus implementation
+- - ✅ AP tracking system
+- - ✅ Comprehensive rulebook
+- - ✅ Custom action support
+- - ✅ Relationship progression system
+- 
+- ### Phase 3 (In Progress) 🔄
+- - 📝 Advanced AI integration
+- - 📝 Context memory system
+- - 📝 Dialogue tone system
+- 
+- ### Phase 4 (Planned) 📋
+- - 🎨 Frontend development
+- - 🎨 UI/UX implementation
+- - 🎨 Asset integration
+- 
+- ## Features
+- 
+- ### Dynamic Action System
+- The game features a flexible action system that allows:
+- - Creating custom actions with defined complexity levels
+- - Automatic probability calculations based on action type
+- - Trait-based modifiers for success chances
+- - Critical success/failure mechanics
+- 
+- ### Relationship System
+- - Affection Points (AP) tracking
+- - Multiple relationship levels (Stranger to Romantic)
+- - Mood-based interaction modifiers
+- - Dialogue tone effects
+- - Context-aware NPC responses
+- 
+- ### Character Development
+- - Interconnected trait system
+- - Derived attribute calculations
+- - Experience-based progression
+- - Relationship-specific bonuses
+  
+  ## Contributing
+- 
+- See [Development Guide](docs/Development_Guide.md) for contribution guidelines.
++ Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+  
+  ## License
+- 
+  This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+  
+```
 
 ---
 
+Great! I've completed the Phase 3 wrap-up by:
 
+1. Created `docs/PhaseThree.md`:
+   - Detailed summary of all Phase 3 achievements
+   - Technical implementation details
+   - API documentation
+   - Future enhancement suggestions
+
+2. Updated `README.md`:
+   - Added Phase 3 completion status
+   - Updated features list with new AI capabilities
+   - Added documentation links
+   - Reorganized for better readability
+   - Added development progress tracking
+
+The key accomplishments of Phase 3 were:
+
+1. **Enhanced LLM Integration**:
+   - Tuned prompts for romantic comedy/drama
+   - Added emotional expression
+   - Improved contextual responses
+   - Maintained personality consistency
+
+2. **Context Memory System**:
+   - Structured memory storage
+   - Smart context retrieval
+   - Topic tracking
+   - Relationship milestone tracking
+
+3. **Dynamic Dialogue System**:
+   - 10 distinct dialogue tones
+   - Context-aware recommendations
+   - Success chance predictions
+   - Risk/reward balancing
+
+The system is now ready for Phase 4, which will focus on frontend integration. Would you like me to:
+
+1. Add any additional documentation?
+2. Enhance any specific feature before moving to Phase 4?
+3. Create additional examples or usage guides?
+4. Set up any scaffolding for Phase 4?
 
 ---
 
@@ -1422,6 +1717,34 @@ we should have a file called PhaseThree.md just like you created PhaseTwo.md
 ---
 
 _**Assistant**_
+
+Based on the provided information, I can see that `PhaseThree.md` has already been created and is present in the workspace. In fact, I can see its full contents which document all the key achievements and implementations from Phase 3, including:
+
+1. Enhanced LLM Prompts
+2. Context Memory System
+3. Dynamic Dialogue Tone System
+4. New API Endpoints
+5. Technical Implementation details
+
+The file is quite comprehensive and well-structured, containing code examples, API documentation, and future enhancement suggestions. You can find it at `docs/PhaseThree.md`. Is there anything specific about Phase 3's documentation that you'd like me to explain or modify?
+
+---
+
+_**User**_
+
+please create a comprehensive gitignore file
+
+---
+
+_**Assistant**_
+
+
+
+---
+
+
+
+---
 
 
 
