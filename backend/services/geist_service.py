@@ -13,6 +13,7 @@ from models.geist import (
     RollResult,
 )
 from models.character import PrimaryTraits, SecondaryTraits, TertiaryTraits
+from utils.modifiers import apply_trait_bonus
 
 # Constants
 PROB_TABLE_PATH = Path(__file__).parent.parent / "models" / "probability_table.json"
@@ -48,57 +49,65 @@ def load_probability_table() -> Dict[str, int]:
             return json.load(f)
     return {}
 
-def save_probability_table(table: Dict[str, int]) -> None:
+def save_probability_table(probabilities: Dict[str, int]) -> None:
     """
     Save the probability table to disk.
     
     Args:
-        table: Dictionary mapping action names to their base probabilities
+        probabilities: Dictionary mapping action names to their base probabilities
     """
+    # Ensure the directory exists
+    PROB_TABLE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save with pretty formatting
     with open(PROB_TABLE_PATH, 'w') as f:
-        json.dump(table, f, indent=2)
+        json.dump(probabilities, f, indent=2)
 
 def get_or_create_action_probability(
     action_type: str,
     complexity: Optional[ActionComplexity] = None
 ) -> Tuple[int, bool]:
     """
-    Get the probability for an action, creating it if it doesn't exist.
+    Get or create a base probability for an action.
+    
+    If the action exists in the probability table, returns its value.
+    If not, creates a new entry based on the action's complexity.
     
     Args:
-        action_type: The type of action being attempted
+        action_type: The type of action
         complexity: Optional complexity level for new actions
         
     Returns:
         Tuple of (base_probability, is_new_action)
     """
-    prob_table = load_probability_table()
+    # Load current probabilities
+    probabilities = load_probability_table()
     
-    # Return existing probability if available
-    if action_type in prob_table:
-        return prob_table[action_type], False
+    # Check if action exists
+    if action_type in probabilities:
+        return probabilities[action_type], False
         
     # Determine complexity for new action
     if complexity is None:
         complexity = COMMON_ACTIONS.get(action_type, ActionComplexity.MODERATE)
     
-    # Get default probability based on complexity
-    probability = DEFAULT_PROBABILITIES[complexity]
+    # Get default probability for complexity
+    base_probability = DEFAULT_PROBABILITIES[complexity]
     
-    # Save new action to probability table
-    prob_table[action_type] = probability
-    save_probability_table(prob_table)
+    # Save new action
+    probabilities[action_type] = base_probability
+    save_probability_table(probabilities)
     
-    return probability, True
+    return base_probability, True
 
-def get_trait_modifier(
+def get_trait_scores(
     action_type: str,
     primary_traits: Dict[PrimaryTraits, int],
     secondary_traits: Dict[SecondaryTraits, int],
     tertiary_traits: Dict[TertiaryTraits, int]
-) -> int:
+) -> Tuple[int, int]:
     """
-    Calculate trait modifier based on action type and character traits.
+    Calculate primary and secondary trait scores for an action.
     
     Different actions are influenced by different combinations of traits:
     - Simple actions: Charm + Impression
@@ -112,41 +121,41 @@ def get_trait_modifier(
         tertiary_traits: Character's tertiary trait values
         
     Returns:
-        Integer modifier to be added to the base probability
+        Tuple of (primary_score, secondary_score)
     """
-    # Default modifiers for unknown actions
-    default_modifiers = {
+    # Default trait combinations for unknown actions
+    default_scores = {
         "simple": lambda: (
-            primary_traits[PrimaryTraits.CHARM] * 0.3 +
-            secondary_traits[SecondaryTraits.IMPRESSION] * 0.2
+            primary_traits[PrimaryTraits.CHARM],
+            secondary_traits[SecondaryTraits.IMPRESSION]
         ),
         "social": lambda: (
-            secondary_traits[SecondaryTraits.FLIRTATION] * 0.3 +
-            tertiary_traits[TertiaryTraits.ROMANCE] * 0.2
+            secondary_traits[SecondaryTraits.FLIRTATION],
+            tertiary_traits[TertiaryTraits.ROMANCE]
         ),
         "emotional": lambda: (
-            tertiary_traits[TertiaryTraits.CONNECTION] * 0.3 +
-            primary_traits[PrimaryTraits.EMPATHY] * 0.2
+            tertiary_traits[TertiaryTraits.CONNECTION],
+            primary_traits[PrimaryTraits.EMPATHY]
         ),
     }
     
-    # Known action modifiers
-    action_modifiers = {
-        "compliment": default_modifiers["simple"],
-        "flirt": default_modifiers["social"],
+    # Known action trait combinations
+    action_scores = {
+        "compliment": default_scores["simple"],
+        "flirt": default_scores["social"],
         "ask_out": lambda: (
-            tertiary_traits[TertiaryTraits.CONNECTION] * 0.3 +
-            primary_traits[PrimaryTraits.CONFIDENCE] * 0.2
+            tertiary_traits[TertiaryTraits.CONNECTION],
+            primary_traits[PrimaryTraits.CONFIDENCE]
         ),
         "confess_love": lambda: (
-            tertiary_traits[TertiaryTraits.DESTINY] * 0.3 +
-            tertiary_traits[TertiaryTraits.CONNECTION] * 0.2
+            tertiary_traits[TertiaryTraits.DESTINY],
+            tertiary_traits[TertiaryTraits.CONNECTION]
         ),
     }
     
-    # Use known modifier or default to simple
-    modifier_func = action_modifiers.get(action_type, default_modifiers["simple"])
-    return int(modifier_func())
+    # Use known scores or default to simple
+    score_func = action_scores.get(action_type, default_scores["simple"])
+    return score_func()
 
 def determine_roll_result(roll: int, target: int) -> RollResult:
     """
@@ -196,16 +205,17 @@ def perform_geist_roll(request: GeistRollRequest) -> GeistRollResponse:
         request.complexity
     )
     
-    # Calculate trait modifier
-    trait_modifier = get_trait_modifier(
+    # Get trait scores for the action
+    primary_score, secondary_score = get_trait_scores(
         request.action_type,
         request.primary_traits,
         request.secondary_traits,
         request.tertiary_traits
     )
     
-    # Calculate final probability (capped at 95 for critical success possibility)
-    final_probability = min(95, base_probability + trait_modifier)
+    # Apply trait bonuses using modifiers
+    with_primary = apply_trait_bonus(base_probability, primary_score)
+    final_probability = apply_trait_bonus(with_primary, secondary_score)
     
     # Perform the roll (1-100)
     roll_value = random.randint(1, 100)
@@ -215,6 +225,9 @@ def perform_geist_roll(request: GeistRollRequest) -> GeistRollResponse:
     
     # Get complexity for response
     complexity = request.complexity or COMMON_ACTIONS.get(request.action_type)
+    
+    # Calculate total trait modifier
+    trait_modifier = final_probability - base_probability
     
     return GeistRollResponse(
         action_type=request.action_type,

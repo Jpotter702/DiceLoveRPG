@@ -1,13 +1,32 @@
 from fastapi import FastAPI
-from routes import character, geist, image, story
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+from routes import character, geist, npc
 
-app.include_router(character.router, prefix="/character")
-app.include_router(geist.router, prefix="/geist")
-app.include_router(image.router, prefix="/image")
-app.include_router(story.router, prefix="/story")
+app = FastAPI(
+    title="LoveRPG API",
+    description="Dating sim RPG with trait-based character system",
+    version="0.1.0"
+)
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# Include routers
+app.include_router(character.router, prefix="/api", tags=["character"])
+app.include_router(geist.router, prefix="/api", tags=["geist"])
+app.include_router(npc.router, prefix="/api", tags=["npc"])
 
 @app.get("/")
-def root():
-    return {"message": "Welcome to Love & Dice RPG API"}
+async def root():
+    return {
+        "name": "LoveRPG API",
+        "version": "0.1.0",
+        "status": "running"
+    }

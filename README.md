@@ -35,11 +35,15 @@ backend/
    - Dynamic probability calculations
    - Trait-based modifiers
    - Critical success/failure mechanics
+   - Custom action support with complexity levels
+   - Automatic probability table management
 
 3. **Story System**
    - AI-powered dialogue generation
    - Context-aware responses
    - Affection and mood tracking
+   - Relationship progression system
+   - Dialogue tone modifiers
 
 4. **Image Generation**
    - Style-specific prompting
@@ -85,37 +89,64 @@ set HUGGINGFACE_API_KEY=your_key_here     # Windows
 uvicorn backend.app:app --reload
 ```
 
-## API Documentation
+## Documentation
 
-See [API Documentation](docs/API%20Documentation.md) for detailed endpoint specifications.
+- [API Reference](docs/API_Reference.md) - Detailed endpoint specifications
+- [Rulebook](docs/rulebook.md) - Game mechanics and systems
+- [Development Guide](docs/Development_Guide.md) - Setup and contribution guidelines
+- [Frontend Guide](docs/Frontend/README.md) - UI/UX implementation details
 
 ## Development Status
 
-### Phase 1 (Complete)
+### Phase 1 (Complete) ✅
 - ✅ Character creation system
-- ✅ Geist roll mechanics
+- ✅ Basic Geist roll mechanics
 - ✅ Story interaction framework
 - ✅ Image generation integration
 
-### Phase 2 (Planned)
-- 🔄 Game logic enhancement
-- 🔄 Trait bonus implementation
-- 🔄 AP tracking system
-- 🔄 Extended rulebook
+### Phase 2 (Complete) ✅
+- ✅ Enhanced game logic with dynamic actions
+- ✅ Trait bonus implementation
+- ✅ AP tracking system
+- ✅ Comprehensive rulebook
+- ✅ Custom action support
+- ✅ Relationship progression system
 
-### Phase 3 (Planned)
+### Phase 3 (In Progress) 🔄
 - 📝 Advanced AI integration
 - 📝 Context memory system
 - 📝 Dialogue tone system
 
-### Phase 4 (Planned)
+### Phase 4 (Planned) 📋
 - 🎨 Frontend development
 - 🎨 UI/UX implementation
 - 🎨 Asset integration
 
+## Features
+
+### Dynamic Action System
+The game features a flexible action system that allows:
+- Creating custom actions with defined complexity levels
+- Automatic probability calculations based on action type
+- Trait-based modifiers for success chances
+- Critical success/failure mechanics
+
+### Relationship System
+- Affection Points (AP) tracking
+- Multiple relationship levels (Stranger to Romantic)
+- Mood-based interaction modifiers
+- Dialogue tone effects
+- Context-aware NPC responses
+
+### Character Development
+- Interconnected trait system
+- Derived attribute calculations
+- Experience-based progression
+- Relationship-specific bonuses
+
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for development guidelines.
+See [Development Guide](docs/Development_Guide.md) for contribution guidelines.
 
 ## License
 
