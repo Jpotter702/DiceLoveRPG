@@ -7,17 +7,13 @@ router = APIRouter()
 @router.post("/generate", response_model=ImageGenerationResponse)
 async def generate_image(request: ImageGenerationRequest) -> ImageGenerationResponse:
     """
-    Generate an image using Stable Diffusion based on the provided parameters.
+    Generate an image based on the provided prompt and parameters.
     
-    The endpoint constructs a detailed prompt from the request parameters,
-    including style, mood, character details, and location context.
-    It also applies negative prompts to avoid common issues in generated images.
+    The image is generated using Stable Diffusion via HuggingFace's API.
+    The style and mood parameters help tune the generation to match the game's aesthetic.
     
-    The response includes:
-    - The complete prompt used for generation
-    - The URL of the generated image
-    - The style used
-    - The seed (for reproducibility)
+    Returns:
+        ImageGenerationResponse: Contains the generated image URL, prompt used, and generation parameters
     """
     try:
         return await image_service.generate_image(request)

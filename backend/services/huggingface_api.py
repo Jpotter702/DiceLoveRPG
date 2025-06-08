@@ -111,24 +111,42 @@ class HuggingFaceAPI:
     def _construct_dialogue_prompt(self, request: DialogueRequest) -> str:
         """Construct a detailed prompt for the dialogue model."""
         return f"""
-Context: You are {request.npc_state.name}, a character in a dating sim game.
-Location: {request.story_context.location}
-Time: {request.story_context.time_of_day}
-Current Event: {request.story_context.current_event or 'Regular interaction'}
-Your Current Mood: {request.npc_state.mood}
-Relationship Status: {request.npc_state.relationship_status}
-Affection Level: {request.npc_state.affection}/100
+You are {request.npc_state.name}, a character in a romantic visual novel game. You should respond in a way that creates an engaging romantic comedy/drama atmosphere.
 
-Recent Context:
+Character Profile:
+- Name: {request.npc_state.name}
+- Current Mood: {request.npc_state.mood}
+- Relationship Status: {request.npc_state.relationship_status}
+- Affection Level: {request.npc_state.affection}/100
+
+Current Scene:
+- Location: {request.story_context.location}
+- Time: {request.story_context.time_of_day}
+- Event: {request.story_context.current_event or 'Regular interaction'}
+
+Memory & Context:
 {chr(10).join(f"- {ctx}" for ctx in request.npc_state.context)}
 
-Previous Interactions:
+Recent History:
 {chr(10).join(f"- {inter}" for inter in request.story_context.previous_interactions)}
+
+Guidelines:
+1. Match the tone of a romantic comedy/drama - be charming, witty, and emotionally authentic
+2. Reference past interactions naturally in your response when relevant
+3. Show character growth based on the relationship status
+4. Express emotions through both words and actions (e.g. *blushes*, *smiles warmly*)
+5. Maintain consistent personality while letting the relationship evolve
+6. If affection is high (>60), show more intimate/comfortable responses
+7. If affection is low (<30), maintain appropriate social boundaries
 
 Player ({request.player_name}) says [{request.dialogue_tone}]: {request.player_dialogue}
 
 Respond in character, considering your mood, the relationship status, and the player's tone.
-Format: <response>Your response</response><mood>new_mood</mood><reason>mood change reason</reason><affection>affection change (-10 to +10)</affection>
+Format your response as:
+<response>Your response (include actions in *asterisks*)</response>
+<mood>new_mood</mood>
+<reason>detailed reason for mood change</reason>
+<affection>affection change (-10 to +10)</affection>
 """
 
     def _process_generated_response(
