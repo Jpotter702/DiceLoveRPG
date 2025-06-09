@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useCallback } from 'react'
 import type { ReactNode } from 'react'
 import type { Message, MessageRole } from '../types/chat'
+import type { NPCState, StoryContext } from '../types/api'
+import { DialogueTone } from '../types/api'
 
 /**
  * Type definition for the Chat context value
@@ -8,9 +10,15 @@ import type { Message, MessageRole } from '../types/chat'
 interface ChatContextType {
   messages: Message[]          // Array of all messages in the chat
   currentInput: string        // Current text in the input field
+  npcState: NPCState | null   // Current NPC state
+  dialogueTone: DialogueTone  // Current dialogue tone
+  storyContext: StoryContext  // Current story context
   setCurrentInput: (input: string) => void
-  addMessage: (content: string, sender: 'user' | 'npc', role: MessageRole, npcName?: string) => void
+  setDialogueTone: (tone: DialogueTone) => void
+  addMessage: (content: string, role: MessageRole, npcName?: string) => void
   clearChat: () => void      // Resets both messages and input
+  updateNPCState: (newState: NPCState) => void
+  updateStoryContext: (newContext: Partial<StoryContext>) => void
 }
 
 // Create context with undefined default value
@@ -23,18 +31,24 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined)
 export function ChatProvider({ children }: { children: ReactNode }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [currentInput, setCurrentInput] = useState('')
+  const [dialogueTone, setDialogueTone] = useState<DialogueTone>(DialogueTone.FRIENDLY)
+  const [npcState, setNPCState] = useState<NPCState | null>(null)
+  const [storyContext, setStoryContext] = useState<StoryContext>({
+    location: 'Cafe',
+    time_of_day: 'afternoon',
+    current_event: 'First Meeting',
+    previous_interactions: []
+  })
 
   // Memoized function to add new messages to the chat
   const addMessage = useCallback((
     content: string, 
-    sender: 'user' | 'npc', 
-    role: MessageRole = sender === 'user' ? 'player' : 'npc',
+    role: MessageRole,
     npcName?: string
   ) => {
     const newMessage: Message = {
       id: crypto.randomUUID(),
       content,
-      sender,
       role,
       timestamp: new Date(),
       npcName
@@ -46,6 +60,17 @@ export function ChatProvider({ children }: { children: ReactNode }) {
   const clearChat = useCallback(() => {
     setMessages([])
     setCurrentInput('')
+    setNPCState(null)
+  }, [])
+
+  // Memoized function to update NPC state
+  const updateNPCState = useCallback((newState: NPCState) => {
+    setNPCState(newState)
+  }, [])
+
+  // Memoized function to update story context
+  const updateStoryContext = useCallback((newContext: Partial<StoryContext>) => {
+    setStoryContext(prev => ({ ...prev, ...newContext }))
   }, [])
 
   return (
@@ -53,9 +78,15 @@ export function ChatProvider({ children }: { children: ReactNode }) {
       value={{
         messages,
         currentInput,
+        npcState,
+        dialogueTone,
+        storyContext,
         setCurrentInput,
+        setDialogueTone,
         addMessage,
-        clearChat
+        clearChat,
+        updateNPCState,
+        updateStoryContext
       }}
     >
       {children}

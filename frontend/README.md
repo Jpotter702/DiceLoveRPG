@@ -7,6 +7,7 @@ A modern web application for an interactive dating simulation RPG built with Rea
 - Node.js (v18 or higher)
 - npm (v9 or higher)
 - Git
+- Hugging Face API key
 
 ## Setup Instructions
 
@@ -25,6 +26,7 @@ npm install
 ```bash
 cp .env.example .env
 ```
+Then edit `.env` and add your Hugging Face API key.
 
 ## Development
 

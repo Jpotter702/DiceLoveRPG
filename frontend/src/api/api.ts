@@ -1,96 +1,152 @@
-import type { MessageRole } from '../types/chat'
+import axios from 'axios'
+import type {
+  CreateCharacterRequest,
+  CreateCharacterResponse,
+  GeistRollRequest,
+  GeistRollResponse,
+  StoryInteractRequest,
+  StoryInteractResponse,
+  ErrorResponse
+} from '../types/api'
 
 /**
- * Interface defining the structure of AI responses
- * Includes message content, role type, and optional NPC name
+ * API Configuration
+ * 
+ * The API client uses axios for HTTP requests with a base configuration:
+ * - Base URL from environment or localhost fallback
+ * - JSON content type header
+ * - Standardized error handling
  */
-interface AIResponse {
-  content: string
-  role: MessageRole
-  npcName?: string
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000'
+const api = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+})
+
+/**
+ * Standardized error handling for API requests
+ * 
+ * Processes axios errors into a consistent format:
+ * - Extracts error details from response if available
+ * - Provides fallback for unknown errors
+ * 
+ * @param error - The error caught from an API request
+ * @throws Error with formatted message
+ */
+const handleError = (error: any): never => {
+  if (axios.isAxiosError(error) && error.response) {
+    const errorResponse = error.response.data as ErrorResponse
+    throw new Error(errorResponse.detail || 'An unknown error occurred')
+  }
+  throw error
 }
 
 /**
- * Collection of pre-defined responses to simulate AI interaction
- * Includes a mix of narrator descriptions, NPC dialogue, and system messages
+ * Love & Dice RPG API Client
+ * 
+ * Provides typed methods for interacting with the game's backend services:
+ * - Character creation and management
+ * - Geist roll system for action resolution
+ * - Story interaction with NPCs
+ * - Action probability queries
  */
-const mockResponses: AIResponse[] = [
-  {
-    content: "You feel a connection spark between you and them, like electricity in the air.",
-    role: 'narrator'
+export const apiClient = {
+  /**
+   * Create a new character with primary traits
+   * 
+   * The server will:
+   * 1. Validate trait values (1-100)
+   * 2. Calculate secondary traits
+   * 3. Calculate tertiary traits
+   * 4. Return complete character profile
+   * 
+   * @param request - Character creation parameters
+   * @returns Promise with complete character data
+   */
+  async createCharacter(request: CreateCharacterRequest): Promise<CreateCharacterResponse> {
+    try {
+      const response = await api.post<CreateCharacterResponse>('/api/character/create', request)
+      return response.data
+    } catch (error) {
+      return handleError(error)
+    }
   },
-  {
-    content: "I appreciate your honesty. It's refreshing to meet someone so direct.",
-    role: 'npc',
-    npcName: 'Sarah'
-  },
-  {
-    content: "The evening breeze carries the faint scent of cherry blossoms as you both share a moment of comfortable silence.",
-    role: 'narrator'
-  },
-  {
-    content: "That's an interesting perspective. Tell me more about how you see things.",
-    role: 'npc',
-    npcName: 'Alex'
-  },
-  {
-    content: "Your words seem to have struck a chord, and you notice a subtle change in their expression.",
-    role: 'narrator'
-  }
-]
 
-/**
- * Generates a random delay between 500-1500ms to simulate network latency
- * @returns Number of milliseconds to delay
- */
-const randomDelay = () => Math.random() * 1000 + 500
+  /**
+   * Execute a Geist roll for an action
+   * 
+   * The Geist system:
+   * 1. Gets base probability for the action
+   * 2. Applies trait modifiers
+   * 3. Performs the roll
+   * 4. Determines success/failure
+   * 
+   * For new actions:
+   * - Automatically adds to probability table
+   * - Uses complexity-based default probability
+   * - Returns is_new_action flag
+   * 
+   * @param request - Roll parameters including action and traits
+   * @returns Promise with detailed roll results
+   */
+  async performRoll(request: GeistRollRequest): Promise<GeistRollResponse> {
+    try {
+      const response = await api.post<GeistRollResponse>('/api/geist/roll', request)
+      return response.data
+    } catch (error) {
+      return handleError(error)
+    }
+  },
 
-/**
- * Simulates an AI response to user input with realistic delay and contextual responses
- * @param message The user's message to respond to
- * @returns Promise resolving to an AI response object
- */
-export async function getAIResponse(message: string): Promise<AIResponse> {
-  await new Promise(resolve => setTimeout(resolve, randomDelay()))
-  
-  // Handle special case responses based on message content
-  if (message.toLowerCase().includes('hello') || message.toLowerCase().includes('hi')) {
-    return {
-      content: "Hello! It's wonderful to meet you. How are you today?",
-      role: 'npc',
-      npcName: 'Sarah'
+  /**
+   * Get available actions and their complexities
+   * 
+   * Returns a mapping of:
+   * - Common actions (compliment, flirt, etc.)
+   * - Their complexity levels
+   * - Default success probabilities
+   * 
+   * This helps the UI:
+   * - Show available actions
+   * - Display difficulty levels
+   * - Calculate success chances
+   * 
+   * @returns Promise with action-complexity mapping
+   */
+  async getAvailableActions(): Promise<Record<string, string>> {
+    try {
+      const response = await api.get<{
+        common_actions: Record<string, string>
+      }>('/api/geist/actions')
+      return response.data.common_actions
+    } catch (error) {
+      return handleError(error)
+    }
+  },
+
+  /**
+   * Process a dialogue interaction with an NPC
+   * 
+   * The interaction system:
+   * 1. Processes player dialogue
+   * 2. Considers NPC state (mood, affection, etc.)
+   * 3. Applies dialogue tone effects
+   * 4. Generates contextual response
+   * 5. Updates relationship status
+   * 
+   * @param request - Interaction parameters including dialogue and context
+   * @returns Promise with NPC response and state changes
+   */
+  async interact(request: StoryInteractRequest): Promise<StoryInteractResponse> {
+    try {
+      const response = await api.post<StoryInteractResponse>('/api/story/interact', request)
+      return response.data
+    } catch (error) {
+      return handleError(error)
     }
   }
-
-  if (message.toLowerCase().includes('goodbye') || message.toLowerCase().includes('bye')) {
-    return {
-      content: "The conversation draws to a close, leaving a lingering warmth in the air.",
-      role: 'narrator'
-    }
-  }
-
-  // Return random response for general messages
-  return mockResponses[Math.floor(Math.random() * mockResponses.length)]
 }
 
-/**
- * Generates initial system message when chat starts
- * @returns Promise resolving to system message response
- */
-export async function getSystemMessage(): Promise<AIResponse> {
-  await new Promise(resolve => setTimeout(resolve, randomDelay()))
-  
-  return {
-    content: "Connection established. Your adventure awaits...",
-    role: 'system'
-  }
-}
-
-/**
- * Simulates AI typing delay for more natural conversation flow
- * @returns Promise that resolves after 1-3 seconds
- */
-export async function simulateTyping(): Promise<void> {
-  const typingDuration = Math.random() * 2000 + 1000
-  await new Promise(resolve => setTimeout(resolve, typingDuration))
-} 
+export default apiClient 

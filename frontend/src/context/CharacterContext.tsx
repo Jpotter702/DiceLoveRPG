@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback } from 'react'
-import type { ReactNode } from 'react'
+import type { PrimaryTraits } from '../types/character'
+import { calculateSecondaryTraits, calculateTertiaryTraits } from '../utils/traitUtils'
 
 /**
  * Character statistics interface
@@ -22,7 +23,6 @@ interface Relationship {
   affectionPoints: number
   milestones: {
     id: string
-    ap: number           // AP threshold for this milestone
     description: string
     achieved: boolean
   }[]
@@ -33,7 +33,17 @@ interface Relationship {
  */
 interface Character {
   name: string
-  stats: Stats
+  primaryTraits: PrimaryTraits
+  secondaryTraits: {
+    impression: number
+    flirtation: number
+    chemistry: number
+  }
+  tertiaryTraits: {
+    romance: number
+    connection: number
+    destiny: number
+  }
   relationships: Relationship[]
 }
 
@@ -42,146 +52,38 @@ interface Character {
  */
 interface CharacterContextType {
   character: Character | null
-  createCharacter: (name: string, stats: Stats) => void
-  updateStats: (newStats: Partial<Stats>) => void
-  addRelationship: (npcId: string, npcName: string) => void
-  updateAP: (npcId: string, amount: number) => void
-  addMilestone: (npcId: string, ap: number, description: string) => void
-  achieveMilestone: (npcId: string, milestoneId: string) => void
+  setCharacterTraits: (traits: PrimaryTraits) => void
+  clearCharacter: () => void
 }
 
-// Default starting stats for new characters
-const defaultStats: Stats = {
-  charisma: 10,
-  empathy: 10,
-  wit: 10,
-  passion: 10
-}
-
-const CharacterContext = createContext<CharacterContextType | undefined>(undefined)
+const CharacterContext = createContext<CharacterContextType | null>(null)
 
 /**
  * Provider component that wraps app to provide character management
  * Handles character creation, stats, relationships, and milestones
  */
-export function CharacterProvider({ children }: { children: ReactNode }) {
+export function CharacterProvider({ children }: { children: React.ReactNode }) {
   const [character, setCharacter] = useState<Character | null>(null)
 
-  // Create a new character with given name and optional stats
-  const createCharacter = useCallback((name: string, stats: Stats = defaultStats) => {
+  const setCharacterTraits = useCallback((primaryTraits: PrimaryTraits) => {
+    const secondaryTraits = calculateSecondaryTraits(primaryTraits)
+    const tertiaryTraits = calculateTertiaryTraits(secondaryTraits, primaryTraits)
+
     setCharacter({
-      name,
-      stats,
+      name: 'Player',
+      primaryTraits,
+      secondaryTraits,
+      tertiaryTraits,
       relationships: []
     })
   }, [])
 
-  // Update character stats, maintaining other stats unchanged
-  const updateStats = useCallback((newStats: Partial<Stats>) => {
-    setCharacter(prev => {
-      if (!prev) return null
-      return {
-        ...prev,
-        stats: { ...prev.stats, ...newStats }
-      }
-    })
-  }, [])
-
-  // Add a new NPC relationship if it doesn't exist
-  const addRelationship = useCallback((npcId: string, npcName: string) => {
-    setCharacter(prev => {
-      if (!prev) return null
-      if (prev.relationships.some(r => r.npcId === npcId)) return prev
-      return {
-        ...prev,
-        relationships: [
-          ...prev.relationships,
-          {
-            npcId,
-            npcName,
-            affectionPoints: 0,
-            milestones: []
-          }
-        ]
-      }
-    })
-  }, [])
-
-  // Update Affection Points for a specific NPC
-  const updateAP = useCallback((npcId: string, amount: number) => {
-    setCharacter(prev => {
-      if (!prev) return null
-      return {
-        ...prev,
-        relationships: prev.relationships.map(rel =>
-          rel.npcId === npcId
-            ? { ...rel, affectionPoints: rel.affectionPoints + amount }
-            : rel
-        )
-      }
-    })
-  }, [])
-
-  // Add a new milestone to an NPC relationship
-  const addMilestone = useCallback((npcId: string, ap: number, description: string) => {
-    setCharacter(prev => {
-      if (!prev) return null
-      return {
-        ...prev,
-        relationships: prev.relationships.map(rel =>
-          rel.npcId === npcId
-            ? {
-                ...rel,
-                milestones: [
-                  ...rel.milestones,
-                  {
-                    id: crypto.randomUUID(),
-                    ap,
-                    description,
-                    achieved: false
-                  }
-                ]
-              }
-            : rel
-        )
-      }
-    })
-  }, [])
-
-  // Mark a specific milestone as achieved
-  const achieveMilestone = useCallback((npcId: string, milestoneId: string) => {
-    setCharacter(prev => {
-      if (!prev) return null
-      return {
-        ...prev,
-        relationships: prev.relationships.map(rel =>
-          rel.npcId === npcId
-            ? {
-                ...rel,
-                milestones: rel.milestones.map(m =>
-                  m.id === milestoneId
-                    ? { ...m, achieved: true }
-                    : m
-                )
-              }
-            : rel
-        )
-      }
-    })
+  const clearCharacter = useCallback(() => {
+    setCharacter(null)
   }, [])
 
   return (
-    <CharacterContext.Provider
-      value={{
-        character,
-        createCharacter,
-        updateStats,
-        addRelationship,
-        updateAP,
-        addMilestone,
-        achieveMilestone
-      }}
-    >
+    <CharacterContext.Provider value={{ character, setCharacterTraits, clearCharacter }}>
       {children}
     </CharacterContext.Provider>
   )
@@ -193,7 +95,7 @@ export function CharacterProvider({ children }: { children: ReactNode }) {
  */
 export function useCharacter() {
   const context = useContext(CharacterContext)
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useCharacter must be used within a CharacterProvider')
   }
   return context
