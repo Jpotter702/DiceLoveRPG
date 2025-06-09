@@ -56,7 +56,12 @@ export function ChatWindow() {
             name: 'Sarah',
             affection: 0,
             mood: NPCMood.NEUTRAL,
-            context: ['First meeting'],
+            context: [
+              'First meeting',
+              'Works as a barista',
+              'Passionate about art',
+              'Currently on break'
+            ],
             relationship_status: 'stranger'
           })
         } catch (error) {

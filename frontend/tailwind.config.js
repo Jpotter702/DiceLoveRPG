@@ -8,24 +8,41 @@ export default {
   theme: {
     extend: {
       colors: {
-        border: 'hsl(var(--border))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        border: {
+          DEFAULT: '#e5e7eb',
+          dark: '#374151'
+        },
+        background: {
+          DEFAULT: '#ffffff',
+          dark: '#111827'
+        },
+        foreground: {
+          DEFAULT: '#111827',
+          dark: '#f9fafb'
+        },
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: '#1f2937',
+          foreground: '#f9fafb',
+          dark: '#3b82f6',
+          'dark-foreground': '#f9fafb'
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: '#f3f4f6',
+          foreground: '#1f2937',
+          dark: '#374151',
+          'dark-foreground': '#f9fafb'
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: '#f3f4f6',
+          foreground: '#6b7280',
+          dark: '#374151',
+          'dark-foreground': '#9ca3af'
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+          DEFAULT: '#f3f4f6',
+          foreground: '#1f2937',
+          dark: '#3b82f6',
+          'dark-foreground': '#f9fafb'
         },
       },
       borderRadius: {

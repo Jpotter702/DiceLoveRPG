@@ -8,6 +8,43 @@ import type {
   StoryInteractResponse,
   ErrorResponse
 } from '../types/api'
+import { NPCMood, DialogueTone } from '../types/api'
+
+// Mock responses for testing without backend
+const mockResponses = {
+  interact: (request: StoryInteractRequest): StoryInteractResponse => {
+    const { player_dialogue, dialogue_tone, npc_state } = request
+    let response_text = ''
+    let new_mood = npc_state.mood
+    let affection_change = 0
+    let mood_change_reason = ''
+
+    // Simple response logic based on tone and current mood
+    if (dialogue_tone === DialogueTone.FRIENDLY) {
+      response_text = "That's very kind of you to say! I appreciate your friendly approach."
+      affection_change = 1
+      if (npc_state.mood !== NPCMood.HAPPY) {
+        new_mood = NPCMood.HAPPY
+        mood_change_reason = "Sarah seems to appreciate your friendly demeanor."
+      }
+    } else if (dialogue_tone === DialogueTone.FLIRTY) {
+      response_text = "*blushes* Oh my... you're quite charming, aren't you?"
+      affection_change = npc_state.mood === NPCMood.HAPPY ? 2 : 1
+    } else {
+      response_text = "I see. That's an interesting perspective."
+      affection_change = 0
+    }
+
+    return {
+      response_text,
+      new_mood,
+      affection_change,
+      mood_change_reason,
+      npc_id: npc_state.name.toLowerCase(),
+      npc_name: npc_state.name
+    }
+  }
+}
 
 /**
  * API Configuration
@@ -17,7 +54,7 @@ import type {
  * - JSON content type header
  * - Standardized error handling
  */
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000'
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -140,12 +177,8 @@ export const apiClient = {
    * @returns Promise with NPC response and state changes
    */
   async interact(request: StoryInteractRequest): Promise<StoryInteractResponse> {
-    try {
-      const response = await api.post<StoryInteractResponse>('/api/story/interact', request)
-      return response.data
-    } catch (error) {
-      return handleError(error)
-    }
+    // Use mock response instead of API call
+    return mockResponses.interact(request)
   }
 }
 

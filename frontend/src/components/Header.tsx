@@ -1,24 +1,24 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { Moon, Sun } from 'lucide-react'
 
 export function Header() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const location = useLocation()
 
   useEffect(() => {
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDarkMode(true)
-    }
-
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const handleChange = (e: MediaQueryListEvent) => setIsDarkMode(e.matches)
-    mediaQuery.addEventListener('change', handleChange)
-    return () => mediaQuery.removeEventListener('change', handleChange)
+    // Check if dark mode was previously set
+    const darkMode = localStorage.getItem('darkMode') === 'true'
+    setIsDarkMode(darkMode)
+    document.documentElement.classList.toggle('dark', darkMode)
   }, [])
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', isDarkMode)
-  }, [isDarkMode])
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode
+    setIsDarkMode(newDarkMode)
+    document.documentElement.classList.toggle('dark', newDarkMode)
+    localStorage.setItem('darkMode', newDarkMode.toString())
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -47,11 +47,15 @@ export function Header() {
           </div>
         </nav>
         <button
-          onClick={() => setIsDarkMode(!isDarkMode)}
-          className="p-2 rounded-lg bg-secondary hover:bg-secondary/80"
+          onClick={toggleDarkMode}
+          className="p-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors"
           aria-label="Toggle theme"
         >
-          {isDarkMode ? '🌞' : '🌙'}
+          {isDarkMode ? (
+            <Sun className="w-5 h-5 text-foreground" />
+          ) : (
+            <Moon className="w-5 h-5 text-foreground" />
+          )}
         </button>
       </div>
     </header>
