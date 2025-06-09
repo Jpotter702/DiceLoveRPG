@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { format } from 'date-fns'
+import { motion } from 'framer-motion'
 import { ActionButton } from './ActionButton'
 import type { TraitCheck } from '../../utils/traitUtils'
 import { TRAIT_CHECKS } from '../../utils/traitUtils'
@@ -51,20 +52,73 @@ export function MessageBubble({
     onActionResult?.(action, success, roll)
   }
 
+  // Animation variants for the message bubble
+  const bubbleVariants = {
+    hidden: { 
+      opacity: 0, 
+      y: 20,
+      scale: 0.95
+    },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      scale: 1,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 25
+      }
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.95,
+      transition: {
+        duration: 0.2
+      }
+    }
+  }
+
+  // Animation variants for actions
+  const actionsVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        delay: 0.2,
+        duration: 0.3
+      }
+    }
+  }
+
   return (
     <div className={`flex flex-col gap-2 ${containerClass}`}>
-      <div className={`
-        max-w-[80%] rounded-lg px-4 py-2
-        ${bubbleClass}
-      `}>
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        exit="exit"
+        variants={bubbleVariants}
+        layout
+        className={`
+          max-w-[80%] rounded-lg px-4 py-2
+          shadow-soft hover:shadow-medium
+          transition-shadow duration-200
+          ${bubbleClass}
+        `}
+      >
         <p className="whitespace-pre-wrap">{content}</p>
         <time className="text-xs opacity-70 mt-1 block">
           {format(timestamp, 'HH:mm')}
         </time>
-      </div>
+      </motion.div>
       
       {actions && actions.length > 0 && (
-        <div className="flex flex-wrap gap-2 max-w-[80%]">
+        <motion.div 
+          initial="hidden"
+          animate="visible"
+          variants={actionsVariants}
+          className="flex flex-wrap gap-2 max-w-[80%]"
+        >
           {actions.map((action, index) => (
             <ActionButton
               key={index}
@@ -72,7 +126,7 @@ export function MessageBubble({
               onResult={(success, roll) => handleActionResult(action, success, roll)}
             />
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   )

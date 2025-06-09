@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useChat } from '../../context/ChatContext'
 import { MessageBubble } from './MessageBubble'
 import { InputBar } from './InputBar'
@@ -7,6 +8,7 @@ import { NPCPanel } from '../npc/NPCPanel'
 import { NPCMood } from '../../types/api'
 import type { Message } from '../../types/chat'
 import { format } from 'date-fns'
+import { ArrowDown } from 'lucide-react'
 
 /**
  * ChatWindow Component
@@ -33,6 +35,7 @@ export function ChatWindow() {
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [autoScroll, setAutoScroll] = useState(true)
   const [isInitialized, setIsInitialized] = useState(false)
+  const [showScrollButton, setShowScrollButton] = useState(false)
 
   /**
    * Initialize chat with welcome message and default NPC
@@ -65,31 +68,32 @@ export function ChatWindow() {
     }
   }, [isInitialized, messages.length, addMessage, updateNPCState])
 
-  /**
-   * Handles scroll events to determine if auto-scroll should be enabled
-   * Auto-scroll is disabled when user manually scrolls up to view history
-   */
+  // Scroll to bottom when new messages arrive
+  useEffect(() => {
+    if (autoScroll && messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages, autoScroll])
+
+  // Handle scroll events
   const handleScroll = () => {
     if (!scrollContainerRef.current) return
-    
+
     const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current
-    const isAtBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 50
-    setAutoScroll(isAtBottom)
+    const distanceFromBottom = scrollHeight - scrollTop - clientHeight
+    const isNearBottom = distanceFromBottom < 100
+
+    setAutoScroll(isNearBottom)
+    setShowScrollButton(!isNearBottom)
   }
 
-  /**
-   * Scrolls to the bottom of the chat if auto-scroll is enabled
-   * This is called after new messages are added
-   */
+  // Scroll to bottom manually
   const scrollToBottom = () => {
-    if (!autoScroll) return
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: 'smooth' })
+      setAutoScroll(true)
+    }
   }
-
-  // Auto-scroll when new messages arrive
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages, autoScroll])
 
   /**
    * Determines if a timestamp should be shown above a message
@@ -108,6 +112,27 @@ export function ChatWindow() {
     return timeDiff > 5 * 60 * 1000 // 5 minutes
   }
 
+  // Animation variants for the scroll button
+  const scrollButtonVariants = {
+    hidden: { opacity: 0, y: 10 },
+    visible: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 500,
+        damping: 25
+      }
+    },
+    exit: { 
+      opacity: 0, 
+      y: 10,
+      transition: {
+        duration: 0.2
+      }
+    }
+  }
+
   return (
     <div className="flex h-[calc(100vh-3.5rem)]">
       {/* Main Chat Area */}
@@ -116,66 +141,78 @@ export function ChatWindow() {
         <div 
           ref={scrollContainerRef}
           onScroll={handleScroll}
-          className="flex-1 overflow-y-auto p-4 scroll-smooth"
+          className="flex-1 overflow-y-auto p-4 scroll-smooth bg-background/50 backdrop-blur-sm"
         >
           <div className="container mx-auto">
-            {messages.length === 0 ? (
-              // Welcome screen when no messages exist
-              <div className="flex items-center justify-center h-full text-secondary-foreground/60">
-                <div className="text-center">
-                  <p className="text-lg mb-2">Welcome to Love & Dice!</p>
-                  <p className="text-sm">Your adventure begins here...</p>
-                </div>
-              </div>
-            ) : (
-              // Message list with timestamps
-              messages.map((message, index) => {
-                const showTimestamp = shouldShowTimestamp(message, index)
-                return (
-                  <div key={message.id} className="mb-4">
-                    {showTimestamp && (
-                      <div className="text-center text-xs text-secondary-foreground/60 mb-2">
-                        {format(message.timestamp, 'MMM d, h:mm a')}
-                      </div>
-                    )}
-                    <MessageBubble 
-                      role={message.role}
-                      content={message.content}
-                      timestamp={message.timestamp}
-                      actions={message.actions}
-                    />
+            <AnimatePresence mode="popLayout">
+              {messages.length === 0 ? (
+                // Welcome screen when no messages exist
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center justify-center h-full text-secondary-foreground/60"
+                >
+                  <div className="text-center">
+                    <p className="text-lg mb-2">Welcome to Love & Dice!</p>
+                    <p className="text-sm">Your adventure begins here...</p>
                   </div>
-                )
-              })
-            )}
+                </motion.div>
+              ) : (
+                // Message list with timestamps
+                messages.map((message, index) => {
+                  const showTimestamp = shouldShowTimestamp(message, index)
+                  return (
+                    <motion.div
+                      key={message.id}
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.8 }}
+                      className="mb-4"
+                    >
+                      {showTimestamp && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          className="text-center text-xs text-secondary-foreground/60 mb-2"
+                        >
+                          {format(message.timestamp, 'MMM d, h:mm a')}
+                        </motion.div>
+                      )}
+                      <MessageBubble 
+                        role={message.role}
+                        content={message.content}
+                        timestamp={message.timestamp}
+                        actions={message.actions}
+                      />
+                    </motion.div>
+                  )
+                })
+              )}
+            </AnimatePresence>
             <div ref={messagesEndRef} />
           </div>
         </div>
         <InputBar />
-        {/* Scroll to bottom button - shown when viewing history */}
-        {!autoScroll && messages.length > 0 && (
-          <button
-            onClick={() => {
-              setAutoScroll(true)
-              scrollToBottom()
-            }}
-            className="absolute bottom-20 right-8 bg-primary text-primary-foreground rounded-full p-2 shadow-lg hover:bg-primary/90"
-            aria-label="Scroll to bottom"
-          >
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              className="h-5 w-5" 
-              viewBox="0 0 20 20" 
-              fill="currentColor"
+
+        {/* Scroll to bottom button */}
+        <AnimatePresence>
+          {showScrollButton && (
+            <motion.button
+              variants={scrollButtonVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={scrollToBottom}
+              className="absolute bottom-20 left-1/2 transform -translate-x-1/2
+                        p-2 rounded-full bg-primary text-primary-foreground
+                        shadow-medium hover:shadow-strong
+                        transition-shadow duration-200"
             >
-              <path 
-                fillRule="evenodd" 
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" 
-                clipRule="evenodd" 
-              />
-            </svg>
-          </button>
-        )}
+              <ArrowDown className="w-5 h-5" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
       {/* NPC Information Panel */}
       <div className="w-80">

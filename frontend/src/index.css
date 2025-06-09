@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    /* Colors */
     --border: 220 13% 91%;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -11,6 +12,28 @@
     --primary-foreground: 210 40% 98%;
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+
+    /* Spacing */
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+    --space-2xl: 3rem;
+
+    /* Border Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+
+    /* Shadows */
+    --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.1);
+    --shadow-strong: 0 10px 15px rgba(0, 0, 0, 0.05), 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
   .dark {
@@ -21,6 +44,15 @@
     --primary-foreground: 222.2 47.4% 11.2%;
     --secondary: 217.2 32.6% 17.5%;
     --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    /* Shadows for dark mode */
+    --shadow-soft: 0 2px 4px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-medium: 0 4px 6px rgba(0, 0, 0, 0.2), 0 2px 4px rgba(0, 0, 0, 0.3);
+    --shadow-strong: 0 10px 15px rgba(0, 0, 0, 0.2), 0 4px 6px rgba(0, 0, 0, 0.3);
   }
 }
 
@@ -31,5 +63,57 @@
   body {
     @apply text-foreground bg-background;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Card styles */
+  .card {
+    @apply rounded-lg bg-background p-md shadow-soft transition-shadow hover:shadow-medium;
+  }
+
+  /* Interactive element styles */
+  .interactive {
+    @apply transition-all duration-200;
+  }
+
+  /* Responsive container */
+  .responsive-container {
+    @apply w-full max-w-7xl mx-auto px-sm sm:px-md lg:px-lg;
+  }
+
+  /* Spacing utilities */
+  .stack {
+    @apply space-y-md;
+  }
+  .stack-sm {
+    @apply space-y-sm;
+  }
+  .stack-lg {
+    @apply space-y-lg;
+  }
+
+  /* Animation classes */
+  .animate-in {
+    @apply animate-fade-in;
+  }
+  .slide-in-up {
+    @apply animate-slide-up;
+  }
+  .slide-in-down {
+    @apply animate-slide-down;
+  }
+  .scale-in {
+    @apply animate-scale-in;
+  }
+}
+
+/* Mobile-first responsive breakpoints */
+@media (max-width: 640px) {
+  :root {
+    --space-md: 0.75rem;
+    --space-lg: 1.25rem;
+    --space-xl: 1.75rem;
+    --space-2xl: 2.5rem;
   }
 }
